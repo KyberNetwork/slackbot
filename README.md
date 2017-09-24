@@ -47,8 +47,8 @@ If the latter is checked the selected group should be only 'WorkSpace Admins'
 
 >Allow members to request additions to Approved Apps
 
-As you see fit , we don't allow
-       
+As you see fit
+
 Then go to yourteamurl.slack.com/apps/manage
 
 Remove / disable all unknown (not added by you and don't know exactly what they are doing and why ) applications and confirurations from there!! It's important, since attackers may have generated API keys to gather information and  automate messaging actions
