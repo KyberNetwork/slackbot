@@ -1,13 +1,14 @@
 
-from time import sleep
-import time
+from time import sleep,time
+import configparser
 
 
 
-##################
-seconds=5 # after Y seconds the api rate counter will become 0
-apireqs=2 # X api requests will be allowed ever Y seconds
-##################
+config= configparser.ConfigParser(allow_no_value=True)
+config.read('config.ini')
+apireqs=int(config['general'].get('apirequests'))
+seconds=int(config['general'].get('seconds'))
+
 class APIcount:
     '''Class that checks that no more than `apireqs` number of API calls can be made for a period 
     of `seconds` seconds .If more calls than that are made it waits minimum 1 second until API
@@ -16,13 +17,13 @@ class APIcount:
     maxcalls=apireqs
     def __init__(self,calls=0):
         self.calls=calls
-        self.starttime=time.time()
-        self.activetime=time.time()-self.starttime
+        self.starttime=time()
+        self.activetime=time()-self.starttime
     def __send(self,apicall=1):
         if self.calls==0:
-            self.starttime=time.time()
+            self.starttime=time()
         self.calls=self.calls + apicall
-        self.activetime=time.time()-self.starttime
+        self.activetime=time()-self.starttime
     def reset(self):
         self.calls=0
     def check(self):
@@ -30,12 +31,11 @@ class APIcount:
         if self.calls < self.maxcalls:
             pass
         elif self.calls >=self.maxcalls and self.activetime < self.maxsecs:
-            time.sleep(int(round(self.maxsecs-self.activetime))+1)
+            sleep(int(round(self.maxsecs-self.activetime))+1)
             self.reset()
             pass
         elif self.calls>=self.maxcalls and self.activetime>=self.maxsecs:
             self.reset()
-            #time.sleep(1)
             pass
 
 
@@ -43,14 +43,14 @@ class APIcount:
 class Timer:
     def __init__(self,extrasec=0):
         self.extra=extrasec
-        self.start=time.time()
+        self.start=time()
         self.run=1
 
     def get_time(self):
         self.run+=1
-        return time.time()-self.start+self.extra
+        return time()-self.start+self.extra
     def reset_time(self):
         self.run=2
-        self.start=time.time()
+        self.start=time()
 
 thresh=APIcount()
