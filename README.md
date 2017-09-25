@@ -1,9 +1,11 @@
 # Security Slackbot
 ## Some security enhancement bots for Slack workspaces.
-Currenty the following operations are supported:
-1) Sending Reminders to all  users in a Schedule
 
 ### Disclaimer:  This software is provided **AS IS** without any warranties and support. No responsibility or liability for the use of the software is assumed. You are free to redistribute and modify. Please read the license.
+
+#### Currenty the following operations are supported:
+1) Sending Reminders to all  users in a Schedule
+
 
 ## Instructions:
 
