@@ -101,5 +101,5 @@ You can also add `msg2,speriod2,offset2,room2` and have multiple messaging combi
 
 ### Scripts
 The  *Reminders.py* script will use the `[general]` and `[reminders]` configuration sections to send the reminders. Run it by calling `python3.6 Reminders.py &`   
-The *Messenger.py* script will use the `[general]` and  `[sendmsgs]` configuration sections to send messages to the rooms at the predefined times and offsets. Call it by using `python3.6 Reminders.py &`
+The *Messenger.py* script will use the `[general]` and  `[sendmsgs]` configuration sections to send messages to the rooms at the predefined times and offsets. Call it by using `python3.6 Messenger.py &`
 
