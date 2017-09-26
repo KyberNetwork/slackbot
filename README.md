@@ -1,7 +1,7 @@
 # Security Slackbot
 ## Some security enhancement bots for Slack workspaces.
 
-### Disclaimer:  This software is provided **AS IS** without any warranties and support. No responsibility or liability for the use of the software is assumed. You are free to redistribute and modify. Please read the license.
+### Disclaimer:  This software is provided **AS IS** without any warranties and support. No responsibility or liability for the use of the software is assumed. You are free to redistribute and modify. Please read the license.   
 
 #### Currenty the following operations are supported:
 1) Sending Reminders to all  users in a Schedule
@@ -15,26 +15,25 @@ Install Python 3.6 on a server of your choice, preferably linux( windows) so tha
 
 Sample cron line : 
 
-`*/1 * * * * /home/slackadmin/SlackBot-Police/slackReminders.sh`  
+`*/1 * * * * /home/slackadmin/SlackBot-Police/Slackbot.sh`  
 
-The above line checks every minute  with the *slackReminders.sh* script  if *Reminders.py*  python script is running. If it does not run, it starts it. 
+The above line checks every minute  with the *Slackbot.sh* script  if *Slackbot.py*  python script is running. If it does not run, it starts it. 
 To edit your crontab file run  `crontab -e` from the user (not root ) that will be running the script in your server
 
-Sample *slackReminders.sh* :
+Sample *Slackbot.sh* :
 ```
 #!/bin/sh
-if ps -ef | grep -v grep | grep Reminders.py ; then
+if ps -ef | grep -v grep | grep Slackbot.py ; then
         exit 0
 else
-        /usr/local/bin/python3.6 /home/slackadmin/SlackBot-Police/SlackBot-Police/Reminders.py &
+        /usr/local/bin/python3.6 /home/slackadmin/SlackBot-Police/SlackBot-Police/Slackbot.py &
         exit 0
 fi
 ```
-Don't forget to make *slackReminders.sh* executable by running `chmod +x slackReminders.sh`
+Don't forget to make *Slackbot.sh* executable by running `chmod +x Slackbot.sh`
 
-Also edit the cron task in the cron line and the *slackReminders.sh* script to match your paths  
+Also edit the cron task in the cron line and the *Slackbot.sh* script to match your paths  
 
-You can edit the script to add other python modules of the slackbot or add new scripts for them  
 
 ### Slack
 Security settings review:
@@ -80,6 +79,8 @@ In the **Basic information** you can customize logo, color etc.
 ### config.ini configuration file
 The configuration file provided should be self explanatory in the comments ( prefixed by # ) section after each variable.
 You can put your variables there and the scripts will run those (please be careful for typos like o instead of 0 in field when a number should be put etc.  
+`[modules][reminders]` yes/no enables or disables the reminders module   
+`[modules][sendmsgs]` yes/no enables or disables the rooms messaging module   
 
 `[general]apirequests`  number of api requests that will be done every `seconds` seconds  
 `[general]seconds` number of seconds that the above `apirequests` api request timer will be reset  
@@ -100,6 +101,8 @@ You can also add `msg2,speriod2,offset2,room2` and have multiple messaging combi
 
 
 ### Scripts
-The  *Reminders.py* script will use the `[general]` and `[reminders]` configuration sections to send the reminders. Run it by calling `python3.6 Reminders.py &`   
-The *Messenger.py* script will use the `[general]` and  `[sendmsgs]` configuration sections to send messages to the rooms at the predefined times and offsets. Call it by using `python3.6 Messenger.py &`
+
+All .py files and the config.ini file need to be in the same directory.
+Run the bot by calling `python3.6 Slackbot.py &`    
+
 
