@@ -79,8 +79,8 @@ In the **Basic information** you can customize logo, color etc.
 ### config.ini configuration file
 The configuration file provided should be self explanatory in the comments ( prefixed by # ) section after each variable.
 You can put your variables there and the scripts will run those (please be careful for typos like o instead of 0 in field when a number should be put etc.  
-`[modules][reminders]` yes/no enables or disables the reminders module   
-`[modules][sendmsgs]` yes/no enables or disables the rooms messaging module   
+`[modules]reminders` yes/no enables or disables the reminders module   
+`[modules]sendmsgs` yes/no enables or disables the rooms messaging module   
 
 `[general]apirequests`  number of api requests that will be done every `seconds` seconds  
 `[general]seconds` number of seconds that the above `apirequests` api request timer will be reset  
