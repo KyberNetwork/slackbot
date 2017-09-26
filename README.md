@@ -5,6 +5,7 @@
 
 #### Currenty the following operations are supported:
 1) Sending Reminders to all  users in a Schedule
+2) Sending X messages to Y rooms every S time with O offset
 
 
 ## Instructions:
@@ -31,7 +32,9 @@ fi
 ```
 Don't forget to make *slackReminders.sh* executable by running `chmod +x slackReminders.sh`
 
-Also edit the cron task in the cron line and the *slackReminders.sh* script to match your paths
+Also edit the cron task in the cron line and the *slackReminders.sh* script to match your paths  
+
+You can edit the script to add other python modules of the slackbot or add new scripts for them  
 
 ### Slack
 Security settings review:
@@ -74,17 +77,29 @@ If you want the user that will generate the reminders to by another than you, af
 
 In the **Basic information** you can customize logo, color etc.
 
-### Script
-For the *Reminders.py* script you will need to input the following things , there are examples  in the script commets:
+### config.ini configuration file
+The configuration file provided should be self explanatory in the comments ( prefixed by # ) section after each variable.
+You can put your variables there and the scripts will run those (please be careful for typos like o instead of 0 in field when a number should be put etc.  
 
-`period` seconds that you want the  send reminders operation to start. So if you put it 86400 it will start every day  
-Please notice that the time for the reminder circle to run will be about  total users * 2.5 seconds 
- 
-`token1` user token ( user that the reminders will be requested from to the slackbot )  
-`token2` bot token  
-`remindertext` ( the text for your reminders, please leave the triple quotes as they are  )  
-`msgroomid` A room ID of a  private room, that the bot will report  to you for script operations (start / end of process and any error should those occur )  How to get  this: Please alter your slack from a between different rooms, you will see the url being changed  CXXXXX is a public room, DXXXXX is a DM room, GXXXXX is a private room/group conversation.  For bot reporting it would be better if  you should input a private room ID.
+`[general]apirequests`  number of api requests that will be done every `seconds` seconds  
+`[general]seconds` number of seconds that the above `apirequests` api request timer will be reset  
+ The default values  of 2 reques every 5 seconds should be OK (do not got more aggressive than 2 request every 3 seconds ) if you are not making other API requests.   Actually slack claims ( https://api.slack.com/docs/rate-limits ) that it allows 1 request per second, but during our test, we have found this not to be true, there are certain calls that are heavily rate limited (like getting the users with pagination which is useful for workspaces of more than 20000 members ). Also, if you are using other bots or consuming api calls in other ways, please take those into consideration when altering the above values.
 
-Be sure to **invite the bot user to the private room** so that the bot has access to  send messages to it. It's better if that room is monitored by several admins. So invite the people that you deem necessary, there will be lots of notifications in the next bot updates.
+`[reminders]usertoken` this is the token of the user that will be requesting the reminders   
+`[reminders]rperiod`   period in seconds that you want the  send reminders operation to start. So if you put it 86400 it will start every 24 hours from the script run   
+Please notice that the time for the reminder circle to run will be about  total users * 2.5 seconds with the default `[general]` settings so that in cases that you have more than 34000 users 86400 might not be enough since the operation will restart before the last users get their reminders    
+ `[reminders]botroomid` a string with the the channel that the reminder bot will send reports to. How to get  this: Please alter your slack from a between different rooms, you will see the url being changed  CXXXXX is a public room, DXXXXX is a DM room, GXXXXX is a private room/group conversation.  For bot reporting it would be better if  you should input a private room ID. Also the bot should be invited in the room that the message will be sent, or else the sending will fail.  
+`[reminders]remindertxt`  the text for your reminders, please **pay attention** to the indents for new lines. Every new line in your message has to be idented.  
 
-If you also use other slack bots then you might need to finetune the rate at  which requests are sent to the slack API, please edit the *Apirate.py*  file, it has 2 variables for editing, `seconds` and `apireqs`   2 and 1 means that your app will make  1 api request every 2 seconds.  3 and 1 means 1 api request every 3 seconds.  The default values should be OK if you are not making other API requests.   Actually slack claims ( https://api.slack.com/docs/rate-limits ) that it allows 1 request per second, but during our test, we have found this not to be true. In case of a request being  blocked by slack due to violation of the API rate limits, please alter the *Apirate.py* file accordingly.
+`[sendmsgs]enabled` you put the messages that are enabled, for example `enabled = msg2  ` or `enabled = msg1,msg2,msg3  ` . Use comma for multiple values.   
+`[sendmsgs]msg1` the text of the first message, please **pay attention** to the indents for new lines. Every new line in your message has to be idented.   
+`[sendmsgs]speriod1` the period in number of seconds that this message will be sent   
+`[sendmsgs]offset1` the offset in seconds that will be added to the original message second counter. # In case you have two messages that you want to repeat every  X seconds, since both of them would arrive at the X second mark, the offset value adds seconds to one of those. If you have two messages  both set to 100 seconds and one has offset 30, they will be both be sent every 100 seconds but will have a 30 seconds difference.  
+`[sendmsgs]room1` the string with the name of the room that you want the message to be sent to. How to get  this: Please alter your slack from a between different rooms, you will see the url being changed  CXXXXX is a public room, DXXXXX is a DM room, GXXXXX is a private room/group conversation.  For bot reporting it would be better if  you should input a private room ID. Also the bot should be invited in the room that the message will be sent, or else the sending will fail.  You can put multiple rooms for the same message separating them with commas   
+You can also add `msg2,speriod2,offset2,room2` and have multiple messaging combinations. Remember to enable your messages in the `[sendmsgs]enabled`  section.   
+
+
+### Scripts
+The  *Reminders.py* script will use the `[general]` and `[reminders]` configuration sections to send the reminders. Run it by calling `python3.6 Reminders.py &`   
+The *Messenger.py* script will use the `[general]` and  `[sendmsgs]` configuration sections to send messages to the rooms at the predefined times and offsets. Call it by using `python3.6 Reminders.py &`
+
