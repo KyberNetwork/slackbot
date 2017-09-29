@@ -13,6 +13,8 @@
     - Name Changes tracking and banning if change into admin/bot name   
     - Banning with command line, muting   
     - URL whitelisting   
+    - Commands with simple text replies for linking Slack blog posts or any text answer    
+    
 ##### There is no state tracking yet and those functions are not tested properly, please use them in a demo environment first.
       
       
