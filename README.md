@@ -92,15 +92,15 @@ Start Chrome with the `--ignore-certificate-errors` option. In windows it's   "C
 Run Fiddler  with a filter for `*.slack.com` , or simply watch only the slack requests in Fiddler     
 Got to https://yourteam.slack.com/admin   and click on a simple user and set inactive and then undo your change.    
 You should have one request like this :    
-`https://yourteamurl.com/api/users.admin.setInactive?_x_id=c5c22bdc-1506658910.063`
+`https://yourteamurl.com/api/users.admin.setInactive?_x_id=c5c22bdc-1506658910.063`    
 `c5c22bdc-` is your XID
 If you select that url , on the inspectors tab in either *TextView,WebForms,Raw* you should be able to see a token that starts with `xoxs`like :    
 `xoxs-256565656555-234343434343-234343344334-13434bb343`  . This is your webtoken     
 **Do not switch back to another non admin user account in chrome or you will risk your token to be invalidated** . Just leave the session as is for some time, haven't tested exactly     
 
-### config.ini configuration file
-The configuration file provided should be self explanatory in the comments ( prefixed by # ) section after each variable.
-You can put your variables there and the scripts will run those (please be careful for typos like o instead of 0 in field when a number should be put etc.  
+### config.ini configuration file     
+The configuration file provided should be self explanatory in the comments ( prefixed by # ) section after each variable.     
+You can put your variables there and the scripts will run those (please be careful for typos like o instead of 0 in field when a number should be put etc.    
 The examples here are not complete but the descriptions on the config.ini file should be adequate    
 
 `[general]apirequests`  number of api requests that will be done every `seconds` seconds  
