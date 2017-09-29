@@ -44,4 +44,3 @@ def send_messages(messages):
 if __name__ == '__main__':
     messages=get_config()
     send_messages(messages)
-             
