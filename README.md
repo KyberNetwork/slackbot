@@ -6,6 +6,16 @@
 #### Currenty the following operations are supported:
 1) Sending Reminders to all  users in a Schedule
 2) Sending X messages to Y rooms every S time with O offset
+3) Added realtime functionality with:   
+    - Pin/File/Topic protection   
+    - Swears/Uwanted words removal  
+    - Removal of BTC/ETH addresses   
+    - Name Changes tracking and banning if change into admin/bot name   
+    - Banning with command line, muting   
+    - URL whitelisting   
+##### There is no state tracking yet and those functions are not tested properly, please use them in a demo environment first.
+      
+      
 
 
 ## Instructions:
@@ -15,24 +25,24 @@ Install Python 3.6 on a server of your choice, preferably linux( windows) so tha
 
 Sample cron line : 
 
-`*/1 * * * * /home/slackadmin/SlackBot-Police/Slackbot.sh`  
+`*/1 * * * * /home/slackadmin/SlackBot-Police/Realtime.sh`  
 
-The above line checks every minute  with the *Slackbot.sh* script  if *Slackbot.py*  python script is running. If it does not run, it starts it. 
+The above line checks every minute  with the *Realtime.sh* script  if *Realtime.py*  python script is running. If it does not run, it starts it. 
 To edit your crontab file run  `crontab -e` from the user (not root ) that will be running the script in your server
 
-Sample *Slackbot.sh* :
+Sample *Realtime.sh* :
 ```
 #!/bin/sh
-if ps -ef | grep -v grep | grep Slackbot.py ; then
+if ps -ef | grep -v grep | grep Realtime.py ; then
         exit 0
 else
-        /usr/local/bin/python3.6 /home/slackadmin/SlackBot-Police/SlackBot-Police/Slackbot.py &
+        /usr/local/bin/python3.6 /home/slackadmin/SlackBot-Police/SlackBot-Police/Realtime.py &
         exit 0
 fi
 ```
-Don't forget to make *Slackbot.sh* executable by running `chmod +x Slackbot.sh`
+Don't forget to make *Realtime.sh* executable by running `chmod +x Slackbot.sh`
 
-Also edit the cron task in the cron line and the *Slackbot.sh* script to match your paths  
+Also edit the cron task in the cron line and the *Realtime.sh* script to match your paths  
 
 
 ### Slack
@@ -64,7 +74,7 @@ Add a name and select the workspace for that APP
 Then go to **Bot Users**  on the left and **Add a Bot User**  for your application, select the 'always show my bot as online'
 
 Select **OAuth & Permissions** and then go to Scopes :
-Add the following : `chat:write:bot`  , `reminders:write`   , `users:read`  and save changes
+Add the following : `chat:write:bot`  , `reminders:write`   , `users:read` ,`channels:read`,`channels:write`, `files:write:user`, `pins:write`, `links:read` ,and save changes
 Also, in the **Restrict API Token Usage** below you should put for security the Static IP address of the server that will be running the scripts. This is important because in case your token is compromised Slack will  not allow other IP addresses to use the token.
 
 Then you should go to the **Install App** section and **Install  App To Workspace**
@@ -76,11 +86,22 @@ If you want the user that will generate the reminders to by another than you, af
 
 In the **Basic information** you can customize logo, color etc.
 
+#### How to get the Web Ui token (xoxs-) and the (xid) needed for banning by command
+Start a local browser proxy program like fiddler and configure it for chrome, install it's CA certificate so that it can intercept HTTPS links.       
+Start Chrome with the `--ignore-certificate-errors` option. In windows it's   "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --ignore-certificate-errors       
+Run Fiddler  with a filter for `*.slack.com` , or simply watch only the slack requests in Fiddler     
+Got to https://yourteam.slack.com/admin   and click on a simple user and set inactive and then undo your change.    
+You should have one request like this :    
+`https://yourteamurl.com/api/users.admin.setInactive?_x_id=c5c22bdc-1506658910.063`
+`c5c22bdc-` is your XID
+If you select that url , on the inspectors tab in either *TextView,WebForms,Raw* you should be able to see a token that starts with `xoxs`like :    
+`xoxs-256565656555-234343434343-234343344334-13434bb343`  . This is your webtoken     
+**Do not switch back to another non admin user account in chrome or you will risk your token to be invalidated** . Just leave the session as is for some time, haven't tested exactly     
+
 ### config.ini configuration file
 The configuration file provided should be self explanatory in the comments ( prefixed by # ) section after each variable.
 You can put your variables there and the scripts will run those (please be careful for typos like o instead of 0 in field when a number should be put etc.  
-`[modules]reminders` yes/no enables or disables the reminders module   
-`[modules]sendmsgs` yes/no enables or disables the rooms messaging module   
+The examples here are not complete but the descriptions on the config.ini file should be adequate    
 
 `[general]apirequests`  number of api requests that will be done every `seconds` seconds  
 `[general]seconds` number of seconds that the above `apirequests` api request timer will be reset  
@@ -103,6 +124,6 @@ You can also add `msg2,speriod2,offset2,room2` and have multiple messaging combi
 ### Scripts
 
 All .py files and the config.ini file need to be in the same directory.
-Run the bot by calling `python3.6 Slackbot.py &`    
+Run each script by calling `python3.6 scriptname.py &`, or put each one of them (Reminders.py,Messenger.py,Realtime.py) in an .sh file as the example and run them through cron in case they are stopped.    
 
 
