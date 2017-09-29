@@ -41,6 +41,8 @@ class APIcount:
 
         
 class Timer:
+    ''' A simple timer class that keeps track of the first run and the time since initialization
+    or reset plus the offset put at initialization '''
     def __init__(self,extrasec=0):
         self.extra=extrasec
         self.start=time()
@@ -53,4 +55,31 @@ class Timer:
         self.run=2
         self.start=time()
 
+class Lograte:
+    '''A class that keeps track of the messages generated in the last X hours and does not let a
+    message show up more once. Prevents logs from flooding with username changes from clients
+    that sent a change event without it being existent. It is not suitable for all events, since
+    for example you want to see all unpin and file upload events''' 
+    def __init__(self,hours):
+        self.messages=[]
+        self.seconds=hours*3600
+        self.start = time()
+    def check_msg(self,logevent):
+        if logevent in self.messages and time()-self.start <= self.seconds:
+            return False
+        elif logevent in self.messages and time()-self.start > self.seconds:
+            self.start=time()
+            self.messages=[]
+            return True
+        elif logevent not in self.messages and time()-self.start <=self.seconds:
+            self.messages.append(logevent)
+            return True
+        elif logevent not in self.messages and time()-self.start > self.seconds:
+            self.messages.append(logevent)
+            self.start=time()
+            return True
+    def query(self):
+        return time() - self.start    
+        
+        
 thresh=APIcount()

@@ -2,8 +2,10 @@ import configparser
 from Apirate import Timer
 from Reminders import do_send_botmessage
 
+messages=[]
 def cleanspaces(astring):
     return astring.rstrip().lstrip()
+
 def get_config():
     messages=[]
     config=configparser.ConfigParser()
@@ -25,22 +27,21 @@ def get_config():
                 messages.append(message)
     return messages
 
-messages=get_config()
 def send_messages(messages):
     if len(messages)>=1:
         timers={}
         for n,m in enumerate(messages):
             timers[str(n)]=Timer(m['offset'])
         while True:
-            for n,m in enumerate( messages ):
-                if timers[str(n)].get_time()>m['speriod']:
-                    timers[str(n)].reset_time()
-                    do_send_botmessage(m['msg'], m['room'])
+            try: 
+                for n,m in enumerate( messages ):
+                    if timers[str(n)].get_time()>m['speriod']:
+                        timers[str(n)].reset_time()
+                        do_send_botmessage(m['msg'], m['room'])
+            except:
+                pass
                     
 if __name__ == '__main__':
-    
+    messages=get_config()
     send_messages(messages)
              
-
-
-

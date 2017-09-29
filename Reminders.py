@@ -11,11 +11,11 @@ import configparser
 config= configparser.ConfigParser()
 config.read('config.ini')
 remindertxt= str(config['reminders'].get('remindertxt'))
-token1 = str(config['reminders'].get('usertoken') ) #user1  token
-token2 = str (config['general'].get('bottoken') ) #bot1  token
+usertoken = str(config['reminders'].get('usertoken') ) #user1  token
+bottoken = str (config['general'].get('bottoken') ) #bot1  token
 rperiod =  int(config['reminders'].get('rperiod') )# period in seconds for which the reminders send circle will restart
 botroomid=  str(config['reminders'].get('botroomid') ) # id of the room for bot messages for reports
-
+bigslack = config['general'].getboolean('bigslack')
 ########################################################################################
 timeout=2  #timeout in seconds for http requests
 allusersids=[]
@@ -36,35 +36,43 @@ def create_request(url,timeout=timeout,headers={},data=None):
     
 
 
-def get_users(token):
+
+def get_users(token=bottoken,bigslack=bigslack):
     '''gets the users list'''
-    cursor=""
-    url = ( 'https://slack.com/api/users.list?token='
-            +token+'&limit=1000&presence=false' ) 
-        
-    result={'members':[]} 
-    result1=  create_request(url)
-    if result1['ok']==False:
-        do_send_botmessage('WARN:get_users error, '+str(result1['error']), botroomid)
-    result['members']=result1['members']+result['members']
-    x=0 # max 50 checks for 1000 users each, just to leave the while loop if slack changes something
-        # in case of more than 50K users need to adjust
-    while 'response_metadata' in result1.keys() and ( 
-        result1['response_metadata']['next_cursor'] )is not "" and x <50:
-        
-        cursor=result1['response_metadata']['next_cursor']
+
+    if bigslack:
+        cursor=""
         url = ( 'https://slack.com/api/users.list?token='
-                +token+'&limit=1&presence=false&cursor='+cursor )
-        sleep(15) # Slack is very aggressive with this request, they throw 429 very easily
-        result1=create_request(url,timeout=0.01)
-        x+=1
-        result['members']=result1['members']+result['members']
+                +token+'&limit=1000&presence=false' ) 
+            
+        result={'members':[]} 
+        result1=  create_request(url)
         if result1['ok']==False:
             do_send_botmessage('WARN:get_users error, '+str(result1['error']), botroomid)
-    return result
- 
-
-
+        result['members']=result1['members']+result['members']
+        x=0 # max 50 checks for 1000 users each, just to leave the while loop if slack changes something
+            # in case of more than 50K users need to adjust
+        while 'response_metadata' in result1.keys() and ( 
+            result1['response_metadata']['next_cursor'] )is not "" and x <50:
+            
+            cursor=result1['response_metadata']['next_cursor']
+            url = ( 'https://slack.com/api/users.list?token='
+                    +token+'&limit=1&presence=false&cursor='+cursor )
+            sleep(15) # Slack is very aggressive with this request, they throw 429 very easily
+            result1=create_request(url,timeout=0.01)
+            x+=1
+            result['members']=result1['members']+result['members']
+            if result1['ok']==False:
+                do_send_botmessage('WARN:get_users error, '+str(result1['error']), botroomid)
+        return result
+    else:
+        url = ( 'https://slack.com/api/users.list?token='
+                +token+'&presence=false' ) 
+        result=  create_request(url)
+        if result['ok']==False:
+            do_send_botmessage('WARN:get_users error, '+str(result['error']), botroomid)
+        return result
+    
 def find_user_byid(userid,allusersids):
     try:
         return allusersids[0][allusersids[1].index(userid)]
@@ -75,7 +83,7 @@ def do_send_botmessage(message,roomformessage=botroomid):
     '''sends a message as the bot user  to the admins chatroom'''
     text=urllib.parse.quote_plus(message)
     url = ( 'https://slack.com/api/chat.postMessage?token='
-            +token2+'&channel='+roomformessage+'&text='+text )     
+            +bottoken+'&channel='+roomformessage+'&text='+text )     
     posted,retries=False,0
     while posted == False and retries < 2 :
         
@@ -89,7 +97,7 @@ def do_send_reminder(message,username,intime):
     '''sends a reminder message to user in intime seconds'''
     text=urllib.parse.quote_plus(message)
     url = ( 'https://slack.com/api/reminders.add?token='
-            +token1+'&text='+text+
+            +usertoken+'&text='+text+
             '&time='+str(intime)+'&user='+username)
     posted,retries=False,0
     x=0
@@ -120,7 +128,7 @@ def gather_allusers(results1):
     return allusers,allids
 
 def sendreminders():
-    results1['users.list'] = get_users(token2)
+    results1['users.list'] = get_users(bottoken)
     allusersids = gather_allusers(results1)
     do_send_botmessage("INFO: Start of reminders Sending")
     for i in allusersids[1]:
